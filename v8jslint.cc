@@ -168,43 +168,8 @@ static void Usage(const char* exe)
      printf("Usage:  %s [options] [directives] file\n\n", exe);
      printf("Options\n");
      printf(" -(v|version)  : Show version.\n\n");
-     printf("Directives. See http://www.JSLint.com/lint.html\n");
-     printf(" --adsafe      : true if ADsafe rules should be enforced. See http://www.ADsafe.org/\n");
-     printf(" --bitwise     : true if bitwise operators should be allowed.\n");
-     printf(" --browser     : true if the standard browser globals should be predefined.\n");
-     printf(" --cap         : true if uppercase HTML should be allowed.\n");
-     printf(" --confusion   : true if types can be used inconsistently.\n");
-     printf(" --continue    : true if the continue statement should be allowed.\n");
-     printf(" --css         : true if CSS workarounds should be tolerated. \n");
-     printf(" --debug       : true if debugger statements should be allowed. Set this option to false before going into production.\n");
-     printf(" --devel       : true if browser globals that are useful in development should be predefined.\n");
-     printf(" --eqeq        : true if the == and != operators should be tolerated.\n");
-     printf(" --es5         : true if ES5 syntax should be allowed.\n");
-     printf(" --evil        : true if eval should be allowed.\n");
-     printf(" --forin       : true if unfiltered for in statements should be allowed. \n");
-     printf(" --fragment    : true if HTML fragments should be allowed.\n");
-     printf(" --indent      : The number of spaces used for indentation (default is 4). If 0, then no indentation checking takes place.\n");
-     printf(" --maxerr      : The maximum number of warnings reported. (default is 50)\n");
-     printf(" --maxlen      : The maximum number of characters in a line.\n");
-     printf(" --newcap      : true if Initial Caps with constructor functions is optional.\n");
-     printf(" --node        : true if Node.js globals should be predefined. \n");
-     printf(" --nomen       : true if names should not be checked for initial or trailing underbars.\n");
-     printf(" --on          : true if HTML event handlers should be allowed.\n");
-     printf(" --passfail    : true if the scan should stop on first error.\n");
-     printf(" --plusplus    : true if ++ and -- should be allowed.\n");
-//   Unlisted directive at https://github.com/douglascrockford/JSLint/blob/master/jslint.js
-//   printf(" --predef      : An array of strings, the names of predefined global variables, or an object whose keys are global variable names, and whose values are booleans that determine if each variable is assignable.\n");
-     printf(" --regexp      : true if . and [^...] should be allowed in RegExp literals.\n");
-     printf(" --rhino       : true if the Rhino environment globals should be predefined. \n");
-     printf(" --safe        : true if the safe subset rules are enforced. These rules are used by ADsafe. It enforces the safe subset rules but not the widget structure rules.\n");
-     printf(" --sloppy      : true if the ES5 'use strict'; pragma is not required.\n");
-     printf(" --sub         : true if subscript notation may be used for expressions better expressed in dot notation.\n");
-     printf(" --undef       : true if variables can be declared out of order. \n");
-     printf(" --unparam     : true if unused parameters should be tolerated.\n");
-     printf(" --vars        : true if multiple var statement per function should be allowed. \n");
-     printf(" --white       : true if strict whitespace rules should be ignored.\n");
-     printf(" --widget      : true if the Yahoo Widgets globals should be predefined.\n");
-     printf(" --windows     : true if the Windows globals should be predefined.\n");
+     printf("Directives\n");
+     printf("See http://www.JSLint.com/lint.html for the directives.\n");
 }
 
 static int RunMain(int argc, char* argv[]) {
