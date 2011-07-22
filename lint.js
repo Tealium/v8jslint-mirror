@@ -96,6 +96,7 @@
 
     // run JSLint on given source using given options
     if (!JSLINT(source, option)) {
+        print(filename + " is bad!.");
         report(JSLINT.data(), option);
     } else if (typeof filename !== 'undefined') {
         print(filename + " is good!.");

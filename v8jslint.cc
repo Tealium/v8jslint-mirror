@@ -151,7 +151,7 @@ static int RunJSLint(v8::Handle<v8::Context> context) {
     // reswrap spits the source code out as unsigned char so cast
 #include "lint.cc"
 
-    // Execute the JSLINT source
+    // Execute the JSLint source
     result = ExecuteString(v8::String::New((const char*)jslint, sizeof(jslint)/sizeof(jslint[0])),
                            v8::String::New("JSLint"));
     if (result->IsUndefined()) {
@@ -168,83 +168,11 @@ static int RunJSLint(v8::Handle<v8::Context> context) {
     return ERR_NO_ERROR;
 }
 
-// Print Version.
-static void Version(const char* exe)
-{
-     printf("%s Copyright (c) 2011 Steven Reid\n", exe);
-}
-
-// Print usage.
-static void Usage(const char* exe)
-{
-     printf("Usage:  %s [options] [directives] file\n\n", exe);
-     printf("Options\n");
-     printf(" -(v|version)  : Show version.\n\n");
-     printf("Directives\n");
-     printf("See http://www.JSLint.com/lint.html for the directives.\n");
-}
-
-static int RunMain(int argc, char* argv[]) {
-    v8::HandleScope                 handle_scope;
-    const char                      *file = NULL;
-    v8::Handle<v8::ObjectTemplate>  option = v8::ObjectTemplate::New();
-
-    // set the default directives. See http://www.jslint.com/
-    option->Set(v8::String::New("devel"), v8::Boolean::New(true));
-    option->Set(v8::String::New("browser"), v8::Boolean::New(true));
-    option->Set(v8::String::New("es5"), v8::Boolean::New(true));
-    option->Set(v8::String::New("evil"), v8::Boolean::New(false));
-    option->Set(v8::String::New("maxerr"), v8::Number::New(50));
-    option->Set(v8::String::New("indent"), v8::Number::New(4));
-
-    for (int i = 1; i < argc; ++i) {
-        // A jslint directive is specified by double dash
-        if (0 == strncmp(argv[i], "--", 2)) {
-             // Search for the "="
-             char *ch = strchr(argv[i]+2, '=');
-             if (NULL == ch) {
-                 // default the directive property value to 'false'
-                 option->Set(v8::String::New(argv[i]+2), v8::String::New("false"));
-             } else {
-                // terminate at the "=" to extract the directive
-                *(argv[i] + (ch-argv[i])) = '\0';
-                // set the directive property and value
-                option->Set(v8::String::New(argv[i]+2), v8::String::New(ch+1));
-             }
-        // A v8-jslint option is specified by single dash
-        } else if (0 == strncmp(argv[i], "-", 1)) {
-            // version option
-            if ((0 == strcmp(argv[i], "-v")) || (0 == strcmp(argv[i], "-version"))) {
-                Version(argv[0]);
-                return ERR_NO_ERROR;
-            }
-        // The file to be verified is specified without dashes
-        } else if (NULL == file) {
-            file = argv[i];
-        }
-    }
-
-    // The Javascript filename to be linted
-    v8::Handle<v8::String> filename = v8::String::Empty();
-    
-    // The Javascript source to be linted
-    v8::Handle<v8::String> source = v8::String::Empty();
-
-    // Either read the source from file or standard input
-    if (NULL != file) {
-        // Read from file
-        filename = v8::String::New(file);
-        source = ReadFile(file);
-    } else {
-        // Read from stdin
-        filename = v8::String::New("Javascript");
-        source = ReadInput();
-    }
-    // The Javascript source is required
-    if (source.IsEmpty()) {
-        Usage(argv[0]);
-        return ERR_NO_SOURCE;
-    }
+// Run JSLint on source.
+static int JSLint(v8::Handle<v8::String> filename, 
+                  v8::Handle<v8::String> source,
+                  v8::Handle<v8::ObjectTemplate> option) {
+    v8::HandleScope handle_scope;
 
     // Create a template for the global object.
     v8::Handle<v8::ObjectTemplate> global = v8::ObjectTemplate::New();
@@ -272,7 +200,99 @@ static int RunMain(int argc, char* argv[]) {
     int result = RunJSLint(context);
     context->Exit();
     context.Dispose();
+
     return result;
+}
+
+// Print Version.
+static void Version(const char* exe)
+{
+     printf("%s Copyright (c) 2011 Steven Reid\n", exe);
+}
+
+// Print usage.
+static void Usage(const char* exe)
+{
+     printf("Usage:  %s [options] [directives] file\n\n", exe);
+     printf("Options\n");
+     printf(" -(v|version)  : Show version.\n\n");
+     printf("Directives\n");
+     printf("See http://www.JSLint.com/lint.html for the directives.\n");
+}
+
+static int RunMain(int argc, char* argv[]) {
+    v8::HandleScope                 handle_scope;
+    char                           *file[argc];
+    int                             file_count = 0; 
+    v8::Handle<v8::ObjectTemplate>  option = v8::ObjectTemplate::New();
+
+    // set the default directives. See http://www.jslint.com/
+    option->Set(v8::String::New("devel"), v8::Boolean::New(true));
+    option->Set(v8::String::New("browser"), v8::Boolean::New(true));
+    option->Set(v8::String::New("es5"), v8::Boolean::New(true));
+    option->Set(v8::String::New("evil"), v8::Boolean::New(false));
+    option->Set(v8::String::New("maxerr"), v8::Number::New(50));
+    option->Set(v8::String::New("indent"), v8::Number::New(4));
+
+    for (int i = 1; i < argc; ++i) {
+        // A jslint directive is specified by double dash
+        if (0 == strncmp(argv[i], "--", 2)) {
+             // Search for the "="
+             char *ch = strchr(argv[i]+2, '=');
+             if (NULL == ch) {
+                 // default the directive property value to 'false'
+                 option->Set(v8::String::New(argv[i]+2), v8::String::New("false"));
+             } else {
+                // terminate at the "=" to extract the directive
+                *(argv[i] + (ch-argv[i])) = '\0';
+                // set the directive property and value
+                option->Set(v8::String::New(argv[i]+2), v8::String::New(ch+1));
+             }
+        // A v8jslint option is specified by single dash
+        } else if (0 == strncmp(argv[i], "-", 1)) {
+            // version option
+            if ((0 == strcmp(argv[i], "-v")) || (0 == strcmp(argv[i], "-version"))) {
+                Version(argv[0]);
+                return ERR_NO_ERROR;
+            }
+        // The file to be verified is specified without dashes
+        } else {
+            file[file_count++] = argv[i];
+        }
+    }
+
+    // Either read the source from standard input or file(s)
+    if (0 == file_count) {
+        // Read from stdin
+        v8::Handle<v8::String> filename = v8::String::New("Javascript");
+        v8::Handle<v8::String> source = ReadInput();
+        // The Javascript source is required
+        if (source.IsEmpty()) {
+            Usage(argv[0]);
+            return ERR_NO_SOURCE;
+        }
+        int result = JSLint(filename, source, option);
+        if (ERR_NO_ERROR != result) {
+            return result;
+        }
+    } else {
+        for(int i = 0; i < file_count; ++i) {    
+            // Read from file
+            v8::Handle<v8::String> filename = v8::String::New(file[i]);
+            v8::Handle<v8::String> source = ReadFile(file[i]);
+            // The Javascript source is required
+            if (source.IsEmpty()) {
+                Usage(argv[0]);
+                return ERR_NO_SOURCE;
+            }
+            int result = JSLint(filename, source, option);
+            if (ERR_NO_ERROR != result) {
+                return result;
+            }
+        }
+    }
+    
+    return ERR_NO_ERROR;
 }
 
 int main(int argc, char* argv[]) {
