@@ -8,10 +8,9 @@
 // Application exit codes.
 enum {
     ERR_NO_ERROR = 0,
-    ERR_COMPILATION_FAILURE,
-    ERR_FILE_MISSING,
-    ERR_FILE_EMPTY,
-    ERR_CONTEXT_FAILURE
+    ERR_NO_SOURCE,
+    ERR_CONTEXT_FAILURE,
+    ERR_COMPILATION_FAILURE
 };
 
 // Extracts a C string from a V8 Utf8Value.
@@ -60,6 +59,19 @@ static v8::Handle<v8::String> ReadFile(const char* name) {
 
     v8::Handle<v8::String> result = v8::String::New(chars, size);
     delete[] chars;
+    return result;
+}
+
+// Reads standard input into a v8 string.
+static v8::Handle<v8::String> ReadInput() {
+    char chars[256];
+
+    v8::Handle<v8::String> result = v8::String::Empty();
+    for (int read = 0; 0 < (read = fread(&chars[0], 1, sizeof(chars)/sizeof(chars[0]), stdin));) {
+        v8::Handle<v8::String>  tmp = v8::String::New(chars, read);
+        result = v8::String::Concat(result, tmp);
+    }
+    
     return result;
 }
 
@@ -174,7 +186,7 @@ static void Usage(const char* exe)
 
 static int RunMain(int argc, char* argv[]) {
     v8::HandleScope                 handle_scope;
-    const char                      *filename = NULL;
+    const char                      *file = NULL;
     v8::Handle<v8::ObjectTemplate>  option = v8::ObjectTemplate::New();
 
     // set the default directives. See http://www.jslint.com/
@@ -207,22 +219,31 @@ static int RunMain(int argc, char* argv[]) {
                 return ERR_NO_ERROR;
             }
         // The file to be verified is specified without dashes
-        } else if (NULL == filename) {
-            filename = argv[i];
+        } else if (NULL == file) {
+            file = argv[i];
         }
     }
 
-    // Must have a file to verify
-    if (NULL == filename) {
-        Usage(argv[0]);
-        return ERR_FILE_MISSING;
-    }
+    // The Javascript filename to be linted
+    v8::Handle<v8::String> filename = v8::String::Empty();
+    
+    // The Javascript source to be linted
+    v8::Handle<v8::String> source = v8::String::Empty();
 
-    // Read the Javascript file into the source string
-    v8::Handle<v8::String> source = ReadFile(filename);
+    // Either read the source from file or standard input
+    if (NULL != file) {
+        // Read from file
+        filename = v8::String::New(file);
+        source = ReadFile(file);
+    } else {
+        // Read from stdin
+        filename = v8::String::New("Javascript");
+        source = ReadInput();
+    }
+    // The Javascript source is required
     if (source.IsEmpty()) {
         Usage(argv[0]);
-        return ERR_FILE_EMPTY;
+        return ERR_NO_SOURCE;
     }
 
     // Create a template for the global object.
@@ -238,7 +259,7 @@ static int RunMain(int argc, char* argv[]) {
     global->Set(v8::String::New("option"), option);
 
     // Bind the global 'filename' string to be verified
-    global->Set(v8::String::New("filename"), v8::String::New(filename));
+    global->Set(v8::String::New("filename"), filename);
 
     // Create the execution context
     v8::Persistent<v8::Context> context = v8::Context::New(NULL, global);

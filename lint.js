@@ -35,8 +35,8 @@
                         option[o] = map[o].to(option[o]);
                     }
                 } else {
-                // map from String to Boolean
-                option[o] = toBoolean(option[o]);
+                    // map from String to Boolean
+                    option[o] = toBoolean(option[o]);
                 }
             }
         }
@@ -97,8 +97,10 @@
     // run JSLint on given source using given options
     if (!JSLINT(source, option)) {
         report(JSLINT.data(), option);
-    } else {
+    } else if (typeof filename !== 'undefined') {
         print(filename + " is good!.");
+    } else {
+        print("Javascript is good!.");
     }
 
     // dump the JSLINT directives
