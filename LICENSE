@@ -1,7 +1,7 @@
 /**
  * v8jslint.cc - Command line application of Douglas Crockford's JSLint.
  *
- * Copyright (c) 2011 Steven Reid  (www.stevenreid.co.uk)
+ * Copyright (c) 2012 Steven Reid  (www.stevenreid.co.uk)
  *
  * Permission is hereby granted to use this software under the
  * same terms as jslint.js, which has the following license:

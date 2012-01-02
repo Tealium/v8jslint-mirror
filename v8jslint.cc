@@ -207,7 +207,7 @@ static int JSLint(v8::Handle<v8::String> filename,
 // Print Version.
 static void Version(const char* exe)
 {
-     printf("%s Copyright (c) 2011 Steven Reid\n", exe);
+     printf("%s Copyright (c) 2012 Steven Reid\n", exe);
 }
 
 // Print usage.
@@ -217,7 +217,7 @@ static void Usage(const char* exe)
      printf("Options\n");
      printf(" -(v|version)  : Show version.\n\n");
      printf("Directives\n");
-     printf("See http://www.JSLint.com/lint.html for the directives.\n");
+     printf(" --(directive) : See http://www.JSLint.com/lint.html for the directives.\n\n");
 }
 
 static int RunMain(int argc, char* argv[]) {
