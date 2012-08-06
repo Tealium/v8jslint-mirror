@@ -52,7 +52,7 @@ if not GetOption('jslint'):
 env = Environment(CPPPATH = ['.'])
 
 if IsLinux():
-    reswrap = 'reswrap --static --const -o $TARGET $SOURCE'
+    reswrap = 'reswrap --static -o $TARGET $SOURCE'
 
     if IsDebug():
         libs = ['v8_g', 'v8preparser_g', 'pthread']
